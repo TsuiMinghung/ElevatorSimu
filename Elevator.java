@@ -78,12 +78,12 @@ public class Elevator extends Thread {
         } else {
             --floor;
         }
-        TimableOutput.println(String.format("ARRIVE-%d-%d",floor,id));
         try {
             sleep(MOVETIME);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        TimableOutput.println(String.format("ARRIVE-%d-%d",floor,id));
     }
 
     private void open() {
@@ -170,7 +170,7 @@ public class Elevator extends Thread {
         }
     }
 
-    public void setEnd(boolean isEnd) {
+    public synchronized void setEnd(boolean isEnd) {
         this.isEnd = isEnd;
     }
 }

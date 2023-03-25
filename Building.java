@@ -5,19 +5,17 @@ import java.util.HashMap;
 
 public class Building {
     private final HashMap<Integer,RequestQueue> floors;
-    private final RequestQueue requests;
     private final ArrayList<Elevator> elevators;
     public static final int MAXFLOOR = 11;
     public static final int MINFLOOR = 1;
 
     public Building() {
         this.floors = new HashMap<>();
-        this.requests = new RequestQueue();
         for (int i = MINFLOOR; i <= MAXFLOOR; ++i) {
             floors.put(i,new RequestQueue());
         }
         this.elevators = new ArrayList<>();
-        for (int i = 1;i <= 6;++i) {
+        for (int i = 1;i <= 1;++i) {
             Elevator elevator = new Elevator(this,i);
             elevators.add(elevator);
             elevator.start();
@@ -25,9 +23,6 @@ public class Building {
     }
 
     public synchronized void setEnd(boolean isEnd) {
-        for (RequestQueue requestQueue : floors.values()) {
-            requestQueue.setEnd(true);
-        }
         for (Elevator elevator : elevators) {
             elevator.setEnd(true);
         }
@@ -35,7 +30,6 @@ public class Building {
     }
 
     public synchronized void addRequest(PersonRequest request) {
-        requests.push(request);
         floors.get(request.getFromFloor()).push(request);
         notifyAll();
     }
@@ -70,7 +64,6 @@ public class Building {
              i = (direction == Direction.UP ? i + 1 : i - 1)) {
             result = floors.get(i).tryPoll();
             if (result != null) {
-                requests.remove(result);
                 break;
             }
         }

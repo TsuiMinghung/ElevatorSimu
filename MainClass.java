@@ -4,8 +4,6 @@ import com.oocourse.elevator1.TimableOutput;
 
 import java.io.IOException;
 
-import static java.lang.Thread.sleep;
-
 public class MainClass {
 
     public static void normal() {

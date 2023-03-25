@@ -3,29 +3,16 @@ import com.oocourse.elevator1.PersonRequest;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.lang.System.exit;
-
 public class RequestQueue {
     private final ArrayList<PersonRequest> requests;
-    private boolean isEnd;
 
     public RequestQueue() {
         requests = new ArrayList<>();
-        this.isEnd = false;
     }
 
     public synchronized void push(PersonRequest request) {
         requests.add(request);
         notifyAll();
-    }
-
-    public synchronized void setEnd(boolean isEnd) {
-        this.isEnd = isEnd;
-        notifyAll();
-    }
-
-    public synchronized boolean isEnd() {
-        return isEnd;
     }
 
     public synchronized boolean isEmpty() {
@@ -40,14 +27,6 @@ public class RequestQueue {
             notifyAll();
         }
         return result;
-    }
-
-    public synchronized void remove(PersonRequest request) {
-        if (!requests.remove(request)) {
-            System.err.println("try to remove nonexistent request");
-            exit(1);
-        }
-        notifyAll();
     }
 
     public synchronized List<PersonRequest> willingPersons(int capacity,Direction dir) {
@@ -69,11 +48,7 @@ public class RequestQueue {
         return result;
     }
 
-    public synchronized int size() {
-        return requests.size();
-    }
-
-    public synchronized boolean sameDirection(Direction dir) {
+    public boolean sameDirection(Direction dir) {
         for (PersonRequest p : requests) {
             if (dir.equals(Direction.UP)) {
                 if (p.getFromFloor() < p.getToFloor()) {

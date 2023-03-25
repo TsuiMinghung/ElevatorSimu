@@ -15,7 +15,7 @@ public class Building {
             floors.put(i,new RequestQueue());
         }
         this.elevators = new ArrayList<>();
-        for (int i = 1;i <= 1;++i) {
+        for (int i = 1;i <= 6;++i) {
             Elevator elevator = new Elevator(this,i);
             elevators.add(elevator);
             elevator.start();

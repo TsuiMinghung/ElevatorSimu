@@ -43,17 +43,34 @@ public class Elevator extends Thread {
                 continue;
             }
             //get main request ,should move
-            open();
-            out();
-            in();
-            close();
+            if (needOpen()) {
+                open();
+                out();
+                in();
+                close();
+            }
             updateDir();
             move();
         }
     }
 
+    private boolean needOpen() {
+        for (PersonRequest p : room) {
+            if (p.getToFloor() == floor) {
+                return true;
+            }
+        }
+        if (building.floorAt(floor).sameDirection(direction) && room.size() < CAPACITY) {
+            return true;
+        }
+        if (mainRequest.getFromFloor() == floor) {
+            return true;
+        }
+        return false;
+    }
+
     private void move() {
-        if (room.isEmpty()) {
+        if (mainRequest == null  && room.isEmpty()) {
             return;
         }
         if (direction.equals(Direction.UP)) {
@@ -96,29 +113,24 @@ public class Elevator extends Thread {
         for (PersonRequest p : ins) {
             inPerson(p);
         }
+        if (mainRequest == null) {
+            mainRequest = room.isEmpty() ? null : room.get(0);
+        }
     }
 
     private void out() {
         List<PersonRequest> toBeRemoved = new ArrayList<>();
-        boolean flag = false;
         for (PersonRequest p : room) {
             if (p.getToFloor() == floor) {
                 outPerson(p);
                 toBeRemoved.add(p);
             }
             if (mainRequest.equals(p)) {
-                flag = true;
+                mainRequest = null;
             }
         }
         for (PersonRequest p : toBeRemoved) {
             room.remove(p);
-        }
-        if (flag) {
-            if (room.isEmpty()) {
-                mainRequest = null;
-            } else {
-                mainRequest = room.get(0);
-            }
         }
     }
 
@@ -143,10 +155,18 @@ public class Elevator extends Thread {
         if (mainRequest == null) {
             return;
         }
-        if (mainRequest.getToFloor() > floor) {
-            direction = Direction.UP;
-        } else if (mainRequest.getToFloor() < floor) {
-            direction = Direction.DOWN;
+        if (room.contains(mainRequest)) {
+            if (mainRequest.getToFloor() > floor) {
+                direction = Direction.UP;
+            } else if (mainRequest.getToFloor() < floor) {
+                direction = Direction.DOWN;
+            }
+        } else {
+            if (mainRequest.getFromFloor() > floor) {
+                direction = Direction.UP;
+            } else {
+                direction = Direction.DOWN;
+            }
         }
     }
 

@@ -4,6 +4,8 @@ import com.oocourse.elevator1.TimableOutput;
 
 import java.io.IOException;
 
+import static java.lang.Thread.sleep;
+
 public class MainClass {
 
     public static void normal() {
@@ -28,7 +30,7 @@ public class MainClass {
 
     public static void debug() {
         Building building = new Building();
-        building.addRequest(new PersonRequest(1,2,1));
+        building.addRequest(new PersonRequest(4,5,1));
         building.setEnd(true);
     }
 

@@ -72,6 +72,21 @@ public class RequestQueue {
     public synchronized int size() {
         return requests.size();
     }
+
+    public synchronized boolean sameDirection(Direction dir) {
+        for (PersonRequest p : requests) {
+            if (dir.equals(Direction.UP)) {
+                if (p.getFromFloor() < p.getToFloor()) {
+                    return true;
+                }
+            } else {
+                if (p.getFromFloor() > p.getToFloor()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
 
 

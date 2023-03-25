@@ -68,7 +68,7 @@ public class Building {
         PersonRequest result = null;
         for (int i = floorNum;direction == Direction.UP ? i <= MAXFLOOR : i >= MINFLOOR;
              i = (direction == Direction.UP ? i + 1 : i - 1)) {
-            result = floors.get(floorNum).tryPoll();
+            result = floors.get(i).tryPoll();
             if (result != null) {
                 requests.remove(result);
                 break;

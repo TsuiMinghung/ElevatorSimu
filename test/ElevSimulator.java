@@ -1,6 +1,8 @@
 package test;
 
-import static test.ElevState.*;
+import static test.ElevState.open;
+import static test.ElevState.close;
+import static test.ElevState.arrive;
 import static test.PersonState.inElev;
 import static test.PersonState.outElev;
 

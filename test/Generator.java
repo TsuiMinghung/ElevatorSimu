@@ -2,7 +2,11 @@ package test;
 
 import com.oocourse.elevator1.PersonRequest;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.TreeMap;
+import java.util.Map;
+import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Generator {
@@ -67,9 +71,8 @@ public class Generator {
 
     public List<String> edgeData1() {
         List<String> result = new ArrayList<>();
-        double tmp = 1.0;
         for (int i = 0;i < DATA_NUM;++i) {
-            result.add(String.format("[%f]",tmp) + randRequest());
+            result.add(String.format("[%f]",BEGIN_TIME) + randRequest());
         }
         return result;
     }

@@ -63,10 +63,7 @@ public class Elevator extends Thread {
         if (building.floorAt(floor).sameDirection(direction) && room.size() < CAPACITY) {
             return true;
         }
-        if (mainRequest.getFromFloor() == floor) {
-            return true;
-        }
-        return false;
+        return mainRequest.getFromFloor() == floor;
     }
 
     private void move() {

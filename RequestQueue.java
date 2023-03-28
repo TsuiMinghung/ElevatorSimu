@@ -48,7 +48,7 @@ public class RequestQueue {
         return result;
     }
 
-    public boolean sameDirection(Direction dir) {
+    public synchronized boolean sameDirection(Direction dir) {
         for (PersonRequest p : requests) {
             if (dir.equals(Direction.UP)) {
                 if (p.getFromFloor() < p.getToFloor()) {

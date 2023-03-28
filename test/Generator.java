@@ -45,7 +45,7 @@ public class Generator {
     }
 
     private int randFloor() {
-        return ThreadLocalRandom.current().nextInt(MIN_FLOOR,MAX_FLOOR);
+        return ThreadLocalRandom.current().nextInt(MIN_FLOOR,MAX_FLOOR + 1);
     }
 
     private PersonRequest randRequest() {
@@ -72,7 +72,7 @@ public class Generator {
     public List<String> edgeData1() {
         List<String> result = new ArrayList<>();
         for (int i = 0;i < DATA_NUM;++i) {
-            result.add(String.format("[%f]",BEGIN_TIME) + randRequest());
+            result.add(String.format("[%f]",END_TIME - 1) + randRequest());
         }
         return result;
     }

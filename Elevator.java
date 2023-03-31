@@ -17,6 +17,8 @@ public class Elevator extends Thread {
     public static final int MOVETIME = 400;
     public static final int OPENTIME = 200;
     public static final int CLOSETIME = 200;
+    public static final int MAXFLOOR = 11;
+    public static final int MINFLOOR = 1;
 
     public Elevator(Building building,int id) {
         this.isEnd = false;
@@ -49,12 +51,13 @@ public class Elevator extends Thread {
                 in();
                 close();
             }
-            updateDir();
             move();
         }
     }
 
     private boolean needOpen() {
+        direction = (floor == MAXFLOOR ? Direction.DOWN : direction);
+        direction = (floor == MINFLOOR ? Direction.UP : direction);
         for (PersonRequest p : room) {
             if (p.getToFloor() == floor) {
                 return true;
@@ -63,7 +66,30 @@ public class Elevator extends Thread {
         if (building.floorAt(floor).sameDirection(direction) && room.size() < CAPACITY) {
             return true;
         }
-        return mainRequest.getFromFloor() == floor;
+        if (mainRequest.getFromFloor() == floor) {
+            if (CAPACITY <= room.size()) {
+                building.addRequest(mainRequest);
+                mainRequest = room.get(0);
+                return false;
+            } else {
+                if (building.needContinue(direction,floor)) {
+                    return direction.sameDirection(mainRequest);
+                } else {
+                    if (direction.sameDirection(mainRequest)) {
+                        return true;
+                    } else {
+                        if (room.isEmpty()) {
+                            direction = direction.negate();
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
+                }
+            }
+        } else {
+            return false;
+        }
     }
 
     private void move() {
@@ -75,8 +101,6 @@ public class Elevator extends Thread {
         } else {
             --floor;
         }
-        direction = floor == 11 ? Direction.DOWN : direction;
-        direction = floor == 1 ? Direction.UP : direction;
         try {
             sleep(MOVETIME);
         } catch (InterruptedException e) {
@@ -95,7 +119,8 @@ public class Elevator extends Thread {
     }
 
     private void in() {
-        if (mainRequest != null &&  mainRequest.getFromFloor() == floor) {
+        if (mainRequest != null &&  mainRequest.getFromFloor() == floor &&
+                direction.sameDirection(mainRequest)) {
             if (CAPACITY == room.size()) {
                 building.addRequest(mainRequest);
                 mainRequest = room.get(0);
@@ -148,25 +173,6 @@ public class Elevator extends Thread {
             e.printStackTrace();
         }
         TimableOutput.println(String.format("CLOSE-%d-%d",floor,id));
-    }
-
-    private void updateDir() {
-        if (mainRequest == null) {
-            return;
-        }
-        if (room.contains(mainRequest)) {
-            if (mainRequest.getToFloor() > floor) {
-                direction = Direction.UP;
-            } else if (mainRequest.getToFloor() < floor) {
-                direction = Direction.DOWN;
-            }
-        } else {
-            if (mainRequest.getFromFloor() > floor) {
-                direction = Direction.UP;
-            } else {
-                direction = Direction.DOWN;
-            }
-        }
     }
 
     public synchronized void setEnd(boolean isEnd) {

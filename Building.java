@@ -73,4 +73,21 @@ public class Building {
     public RequestQueue floorAt(int floorNum) {
         return floors.get(floorNum);
     }
+
+    public boolean needContinue(Direction dir,int floorNum) {
+        if (dir.equals(Direction.UP)) {
+            for (int i = floorNum;i <= MAXFLOOR;++i) {
+                if (!floors.get(i).isEmpty()) {
+                    return true;
+                }
+            }
+        } else {
+            for (int i = floorNum;i >= MINFLOOR;--i) {
+                if (!floors.get(i).isEmpty()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

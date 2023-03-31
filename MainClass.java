@@ -4,10 +4,7 @@ import com.oocourse.elevator1.TimableOutput;
 import test.Generator;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.FileWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 public class MainClass {
 
@@ -27,26 +24,6 @@ public class MainClass {
         try {
             elevatorInput.close();
         } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void debug() {
-        try {
-            Building building = new Building();
-            InputStream is = Files.newInputStream(Paths.get("./stdin.txt"));
-            ElevatorInput elevatorInput = new ElevatorInput(is);
-            while (true) {
-                PersonRequest request = elevatorInput.nextPersonRequest();
-                if (request == null) {
-                    building.setEnd(true);
-                    break;
-                } else {
-                    building.addRequest(request);
-                }
-            }
-            elevatorInput.close();
-        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -77,8 +54,6 @@ public class MainClass {
             normal();
         } else if (argv[0].equals("generate")) {
             generate();
-        } else if (argv[0].equals("debug")) {
-            debug();
         }
     }
 }

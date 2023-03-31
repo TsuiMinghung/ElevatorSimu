@@ -75,6 +75,8 @@ public class Elevator extends Thread {
         } else {
             --floor;
         }
+        direction = floor == 11 ? Direction.DOWN : direction;
+        direction = floor == 1 ? Direction.UP : direction;
         try {
             sleep(MOVETIME);
         } catch (InterruptedException e) {
@@ -122,7 +124,7 @@ public class Elevator extends Thread {
                 outPerson(p);
                 toBeRemoved.add(p);
             }
-            if (mainRequest.equals(p)) {
+            if (mainRequest != null && mainRequest.equals(p)) {
                 mainRequest = null;
             }
         }

@@ -32,7 +32,7 @@ public class RequestQueue {
     public synchronized List<PersonRequest> willingPersons(int capacity,Direction dir) {
         ArrayList<PersonRequest> result = new ArrayList<>();
         for (PersonRequest p : requests) {
-            if (capacity >= result.size()) {
+            if (capacity <= result.size()) {
                 break;
             }
             if (dir.equals(Direction.UP) && (p.getFromFloor() < p.getToFloor())) {

@@ -34,7 +34,7 @@ public class Building {
         notifyAll();
     }
 
-    public boolean isEmpty() {
+    public synchronized boolean isEmpty() {
         for (RequestQueue requestQueue : floors.values()) {
             if (!requestQueue.isEmpty()) {
                 return false;
@@ -74,7 +74,7 @@ public class Building {
         return floors.get(floorNum);
     }
 
-    public boolean needContinue(Direction dir,int floorNum) {
+    public synchronized boolean needContinue(Direction dir,int floorNum) {
         if (dir.equals(Direction.UP)) {
             for (int i = floorNum;i <= MAXFLOOR;++i) {
                 if (!floors.get(i).isEmpty()) {

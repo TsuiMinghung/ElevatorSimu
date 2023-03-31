@@ -74,8 +74,7 @@ public class MainClass {
     public static void main(String[] argv) {
         TimableOutput.initStartTimestamp();
         if (argv.length == 0) {
-//            normal();
-            debug();
+            normal();
         } else if (argv[0].equals("generate")) {
             generate();
         } else if (argv[0].equals("debug")) {

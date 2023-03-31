@@ -24,7 +24,7 @@ public class Building {
 
     public synchronized void setEnd(boolean isEnd) {
         for (Elevator elevator : elevators) {
-            elevator.setEnd(true);
+            elevator.setEnd(isEnd);
         }
         notifyAll();
     }

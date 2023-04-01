@@ -145,6 +145,9 @@ public class Elevator extends Thread {
         }
         if (building.floorAt(floor).sameDirection(direction) && room.size() < capacity) {
             return true;
+        } else if (mainRequest != null && mainRequest.getFromFloor() == floor
+                && direction.sameDirection(mainRequest) && room.size() < capacity) {
+            return true;
         }
         if (mainRequest != null && mainRequest.getFromFloor() == floor) {
             if (capacity <= room.size()) {
@@ -172,7 +175,7 @@ public class Elevator extends Thread {
             if (room.isEmpty()) {
                 if (!building.needContinue(direction,floor)) {
                     if (mainRequest == null) {
-                        direction = direction.negate();
+                        direction = direction;
                     } else if (direction.equals(Direction.UP) &&
                             mainRequest.getFromFloor() < floor) {
                         direction = direction.negate();

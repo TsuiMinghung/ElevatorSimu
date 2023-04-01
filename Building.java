@@ -19,7 +19,7 @@ public class Building {
             floors.put(i,new RequestQueue());
         }
         this.elevators = new HashMap<>();
-        for (int i = 1;i <= 1;++i) {
+        for (int i = 1;i <= 6;++i) {
             Elevator elevator = new Elevator(this,i);
             elevators.put(i,elevator);
             elevator.start();

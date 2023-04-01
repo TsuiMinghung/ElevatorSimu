@@ -79,7 +79,7 @@ public class Elevator extends Thread {
                 continue;
             }
             //get main request ,should move
-            if (needOpen()) {
+            if (updateDir()) {
                 open();
                 out();
                 in();
@@ -135,7 +135,7 @@ public class Elevator extends Thread {
         return id;
     }
 
-    private boolean needOpen() {
+    private boolean updateDir() {
         direction = (floor == MAXFLOOR ? Direction.DOWN :
                 floor == MINFLOOR ? Direction.UP : direction);
         for (PersonRequest p : room) {
@@ -146,7 +146,7 @@ public class Elevator extends Thread {
         if (building.floorAt(floor).sameDirection(direction) && room.size() < capacity) {
             return true;
         }
-        if (mainRequest.getFromFloor() == floor) {
+        if (mainRequest != null && mainRequest.getFromFloor() == floor) {
             if (capacity <= room.size()) {
                 building.addRequest(mainRequest);
                 mainRequest = room.get(0);
@@ -168,13 +168,20 @@ public class Elevator extends Thread {
                 }
             }
         } else {
-            /*if (room.isEmpty()) {
-                if (direction.equals(Direction.UP) && mainRequest.getFromFloor() < floor) {
-                    direction = direction.negate();
-                } else if (direction.equals(Direction.DOWN) && mainRequest.getFromFloor() > floor) {
-                    direction = direction.negate();
+            //current floor do not need to in out
+            if (room.isEmpty()) {
+                if (!building.needContinue(direction,floor)) {
+                    if (mainRequest == null) {
+                        direction = direction.negate();
+                    } else if (direction.equals(Direction.UP) &&
+                            mainRequest.getFromFloor() < floor) {
+                        direction = direction.negate();
+                    } else if (direction.equals(Direction.DOWN) &&
+                            mainRequest.getFromFloor() > floor) {
+                        direction = direction.negate();
+                    }
                 }
-            }*/
+            }
             direction = (floor == MAXFLOOR ? Direction.DOWN :
                     floor == MINFLOOR ? Direction.UP : direction);
             return false;
@@ -245,6 +252,7 @@ public class Elevator extends Thread {
         for (PersonRequest p : toBeRemoved) {
             room.remove(p);
         }
+        updateDir();
     }
 
     private void inPerson(PersonRequest p) {

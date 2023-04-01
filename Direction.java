@@ -12,9 +12,6 @@ public enum Direction {
     }
 
     public boolean sameDirection(PersonRequest personRequest) {
-        if (personRequest == null) {
-            return false;
-        }
         if (this.equals(Direction.UP)) {
             return personRequest.getToFloor() > personRequest.getFromFloor();
         } else {

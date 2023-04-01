@@ -159,6 +159,8 @@ public class Elevator extends Thread {
             if (room.isEmpty() && !direction.sameDirection(mainRequest)) {
                 direction = direction.negate();
             }
+            direction = (floor == MAXFLOOR ? Direction.DOWN :
+                    floor == MINFLOOR ? Direction.UP : direction);
             return false;
         }
     }

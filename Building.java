@@ -100,7 +100,7 @@ public class Building {
     }
 
     public synchronized void addElevator(ElevatorRequest elevatorRequest) {
-        Elevator elevator = new Elevator(elevatorRequest,this);
+        Elevator elevator = new Elevator(this,elevatorRequest);
         elevator.start();
         elevators.put(elevator.getElevId(),elevator);
         notifyAll();
@@ -115,7 +115,8 @@ public class Building {
         for (Integer id : elevators.keySet()) {
             Elevator e = elevators.get(id);
             if (!e.isAlive() && !e.needMaintain()) {
-                Elevator elevator = new Elevator(this,id);
+                Elevator elevator = new Elevator(this,new ElevatorRequest(id,
+                        e.getFloor(),e.getCapacity(),e.getSpeed()));
                 elevators.put(id,elevator);
                 elevator.start();
             }

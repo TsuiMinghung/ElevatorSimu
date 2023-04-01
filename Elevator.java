@@ -35,7 +35,7 @@ public class Elevator extends Thread {
         this.needMaintain = false;
     }
 
-    public Elevator(ElevatorRequest elevatorRequest,Building building) {
+    public Elevator(Building building,ElevatorRequest elevatorRequest) {
         this.isEnd = building.isEnd();
         this.building = building;
         this.floor = elevatorRequest.getFloor();
@@ -103,6 +103,18 @@ public class Elevator extends Thread {
         building.startAll();
     }
 
+    public int getFloor() {
+        return floor;
+    }
+
+    public double getSpeed() {
+        return speed;
+    }
+
+    public int getCapacity() {
+        return capacity;
+    }
+
     public boolean needMaintain() {
         return needMaintain;
     }
@@ -112,8 +124,8 @@ public class Elevator extends Thread {
     }
 
     private boolean needOpen() {
-        direction = (floor == MAXFLOOR ? Direction.DOWN : direction);
-        direction = (floor == MINFLOOR ? Direction.UP : direction);
+        direction = (floor == MAXFLOOR ? Direction.DOWN :
+                floor == MINFLOOR ? Direction.UP : direction);
         for (PersonRequest p : room) {
             if (p.getToFloor() == floor) {
                 return true;
@@ -144,6 +156,9 @@ public class Elevator extends Thread {
                 }
             }
         } else {
+            if (room.isEmpty() && !direction.sameDirection(mainRequest)) {
+                direction = direction.negate();
+            }
             return false;
         }
     }

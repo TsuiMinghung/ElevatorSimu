@@ -1,8 +1,11 @@
 
-import com.oocourse.elevator1.PersonRequest;
+import com.oocourse.elevator2.PersonRequest;
+import com.oocourse.elevator2.ElevatorRequest;
 
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Building {
     private final HashMap<Integer,RequestQueue> floors;
@@ -100,21 +103,18 @@ public class Building {
         return false;
     }
 
-    /*
     public synchronized void addElevator(ElevatorRequest elevatorRequest) {
         Elevator elevator = new Elevator(this,elevatorRequest);
         elevator.start();
         elevators.put(elevator.getElevId(),elevator);
         notifyAll();
     }
-    */
 
     public synchronized void maintain(int id) {
         elevators.get(id).maintain();
         notifyAll();
     }
 
-    /*
     public synchronized void startAll() {
         List<Elevator> tmp = new ArrayList<>(elevators.values());
         tmp.sort(new SortBySpeed());
@@ -128,7 +128,6 @@ public class Building {
         }
         notifyAll();
     }
-     */
 
     private static class SortBySpeed implements Comparator<Elevator> {
         public int compare(Elevator e1,Elevator e2) {

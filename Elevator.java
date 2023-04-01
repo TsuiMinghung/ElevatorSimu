@@ -1,5 +1,6 @@
-import com.oocourse.elevator1.PersonRequest;
-import com.oocourse.elevator1.TimableOutput;
+import com.oocourse.elevator2.PersonRequest;
+import com.oocourse.elevator2.TimableOutput;
+import com.oocourse.elevator2.ElevatorRequest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +46,6 @@ public class Elevator extends Thread {
         setPriority(SPEEDTOLEVEL.get(speed));
     }
 
-    /*
     public Elevator(Building building,ElevatorRequest elevatorRequest) {
         this.isEnd = building.isEnd();
         this.building = building;
@@ -59,13 +59,12 @@ public class Elevator extends Thread {
         this.needMaintain = false;
         setPriority(SPEEDTOLEVEL.get(speed));
     }
-     */
 
     @Override
     public void run() {
         while (true) {
             if (needMaintain) {
-                //pullOver();
+                pullOver();
                 return;
             }
             if (isEnd && mainRequest == null && room.isEmpty() && building.isEmpty()) {
@@ -90,7 +89,6 @@ public class Elevator extends Thread {
         }
     }
 
-    /*
     private void pullOver() {
         if (room.isEmpty()) {
             if (mainRequest != null) {
@@ -116,7 +114,6 @@ public class Elevator extends Thread {
         TimableOutput.println("MAINTAIN_ABLE-" + id);
         building.startAll();
     }
-    */
 
     public int getFloor() {
         return floor;

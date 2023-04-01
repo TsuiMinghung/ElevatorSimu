@@ -168,13 +168,13 @@ public class Elevator extends Thread {
                 }
             }
         } else {
-            if (room.isEmpty()) {
+            /*if (room.isEmpty()) {
                 if (direction.equals(Direction.UP) && mainRequest.getFromFloor() < floor) {
                     direction = direction.negate();
                 } else if (direction.equals(Direction.DOWN) && mainRequest.getFromFloor() > floor) {
                     direction = direction.negate();
                 }
-            }
+            }*/
             direction = (floor == MAXFLOOR ? Direction.DOWN :
                     floor == MINFLOOR ? Direction.UP : direction);
             return false;

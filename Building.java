@@ -1,7 +1,7 @@
 import com.oocourse.elevator2.ElevatorRequest;
 import com.oocourse.elevator2.PersonRequest;
 
-import java.util.HashMap;
+import java.util.*;
 
 public class Building {
     private final HashMap<Integer,RequestQueue> floors;
@@ -112,16 +112,23 @@ public class Building {
     }
 
     public synchronized void startAll() {
-        for (Integer id : elevators.keySet()) {
-            Elevator e = elevators.get(id);
+        List<Elevator> tmp = new ArrayList<Elevator>(elevators.values());
+        tmp.sort(new SortBySpeed());
+        for (Elevator e : tmp) {
             if (!e.isAlive() && !e.needMaintain()) {
-                Elevator elevator = new Elevator(this,new ElevatorRequest(id,
+                Elevator elevator = new Elevator(this,new ElevatorRequest(e.getElevId(),
                         e.getFloor(),e.getCapacity(),e.getSpeed()));
-                elevators.put(id,elevator);
+                elevators.put(e.getElevId(),elevator);
                 elevator.start();
             }
         }
-        setEnd(isEnd);
+        notifyAll();
+    }
+
+    private static class SortBySpeed implements Comparator<Elevator> {
+        public int compare(Elevator e1,Elevator e2) {
+            return Double.compare(e1.getSpeed(),e2.getSpeed());
+        }
     }
 
 }

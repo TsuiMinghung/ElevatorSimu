@@ -3,6 +3,7 @@ import com.oocourse.elevator2.PersonRequest;
 import com.oocourse.elevator2.TimableOutput;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Elevator extends Thread {
@@ -21,6 +22,15 @@ public class Elevator extends Thread {
     public static final int CLOSETIME = 200;
     public static final int MAXFLOOR = 11;
     public static final int MINFLOOR = 1;
+    public static final HashMap<Double,Integer> SPEEDTOLEVEL = new HashMap<Double,Integer>() {
+        {
+            put(0.2,10);
+            put(0.3,8);
+            put(0.4,6);
+            put(0.5,4);
+            put(0.6,2);
+        }
+    };
 
     public Elevator(Building building,int id) {
         this.isEnd = building.isEnd();
@@ -33,6 +43,7 @@ public class Elevator extends Thread {
         this.speed = 0.4;
         this.capacity = 6;
         this.needMaintain = false;
+        setPriority(SPEEDTOLEVEL.get(speed));
     }
 
     public Elevator(Building building,ElevatorRequest elevatorRequest) {
@@ -46,6 +57,7 @@ public class Elevator extends Thread {
         this.speed = elevatorRequest.getSpeed();
         this.capacity = elevatorRequest.getCapacity();
         this.needMaintain = false;
+        setPriority(SPEEDTOLEVEL.get(speed));
     }
 
     @Override
@@ -156,8 +168,12 @@ public class Elevator extends Thread {
                 }
             }
         } else {
-            if (room.isEmpty() && !direction.sameDirection(mainRequest)) {
-                direction = direction.negate();
+            if (room.isEmpty()) {
+                if (direction.equals(Direction.UP) && mainRequest.getFromFloor() < floor) {
+                    direction = direction.negate();
+                } else if (direction.equals(Direction.DOWN) && mainRequest.getFromFloor() > floor) {
+                    direction = direction.negate();
+                }
             }
             direction = (floor == MAXFLOOR ? Direction.DOWN :
                     floor == MINFLOOR ? Direction.UP : direction);

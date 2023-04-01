@@ -61,15 +61,10 @@ public class MainClass {
 
     public static void debug() {
         Building building = new Building();
-        building.addElevator(new ElevatorRequest(8,9,5,0.2));
+        building.addElevator(new ElevatorRequest(8,9,8,0.2));
+        building.addRequest(new PersonRequest(10,8,1));
         try {
-            sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        building.addRequest(new PersonRequest(3,2,1));
-        try {
-            sleep(200);
+            sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -82,6 +77,7 @@ public class MainClass {
 
         if (argv.length == 0) {
             normal();
+//            debug();
         } else if (argv[0].equals("generate")) {
             generate();
         } else if (argv[0].equals("debug")) {

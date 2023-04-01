@@ -1,7 +1,10 @@
 import com.oocourse.elevator2.ElevatorRequest;
 import com.oocourse.elevator2.PersonRequest;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 
 public class Building {
     private final HashMap<Integer,RequestQueue> floors;
@@ -112,7 +115,7 @@ public class Building {
     }
 
     public synchronized void startAll() {
-        List<Elevator> tmp = new ArrayList<Elevator>(elevators.values());
+        List<Elevator> tmp = new ArrayList<>(elevators.values());
         tmp.sort(new SortBySpeed());
         for (Elevator e : tmp) {
             if (!e.isAlive() && !e.needMaintain()) {

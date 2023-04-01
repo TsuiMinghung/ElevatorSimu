@@ -77,7 +77,6 @@ public class MainClass {
 
         if (argv.length == 0) {
             normal();
-//            debug();
         } else if (argv[0].equals("generate")) {
             generate();
         } else if (argv[0].equals("debug")) {

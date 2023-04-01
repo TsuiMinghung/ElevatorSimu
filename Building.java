@@ -1,32 +1,40 @@
-import com.oocourse.elevator1.PersonRequest;
+import com.oocourse.elevator2.ElevatorRequest;
+import com.oocourse.elevator2.PersonRequest;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Building {
     private final HashMap<Integer,RequestQueue> floors;
-    private final ArrayList<Elevator> elevators;
+    private final HashMap<Integer,Elevator> elevators;
     public static final int MAXFLOOR = 11;
     public static final int MINFLOOR = 1;
 
+    private boolean isEnd;
+
     public Building() {
+        this.isEnd = false;
         this.floors = new HashMap<>();
         for (int i = MINFLOOR; i <= MAXFLOOR; ++i) {
             floors.put(i,new RequestQueue());
         }
-        this.elevators = new ArrayList<>();
+        this.elevators = new HashMap<>();
         for (int i = 1;i <= 6;++i) {
             Elevator elevator = new Elevator(this,i);
-            elevators.add(elevator);
+            elevators.put(i,elevator);
             elevator.start();
         }
     }
 
     public synchronized void setEnd(boolean isEnd) {
-        for (Elevator elevator : elevators) {
+        this.isEnd = isEnd;
+        for (Elevator elevator : elevators.values()) {
             elevator.setEnd(isEnd);
         }
         notifyAll();
+    }
+
+    public boolean isEnd() {
+        return isEnd;
     }
 
     public synchronized void addRequest(PersonRequest request) {
@@ -89,5 +97,16 @@ public class Building {
             }
         }
         return false;
+    }
+
+    public void addElevator(ElevatorRequest elevatorRequest) {
+        Elevator elevator = new Elevator(elevatorRequest,this);
+        elevator.start();
+        elevators.put(elevator.getElevId(),elevator);
+    }
+
+    public void maintain(int id) {
+        elevators.get(id).maintain();
+        notifyAll();
     }
 }

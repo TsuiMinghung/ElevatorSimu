@@ -1,6 +1,9 @@
-import com.oocourse.elevator1.ElevatorInput;
-import com.oocourse.elevator1.PersonRequest;
-import com.oocourse.elevator1.TimableOutput;
+import com.oocourse.elevator2.ElevatorInput;
+import com.oocourse.elevator2.ElevatorRequest;
+import com.oocourse.elevator2.MaintainRequest;
+import com.oocourse.elevator2.PersonRequest;
+import com.oocourse.elevator2.Request;
+import com.oocourse.elevator2.TimableOutput;
 import test.Generator;
 
 import java.io.IOException;
@@ -12,12 +15,18 @@ public class MainClass {
         Building building = new Building();
         ElevatorInput elevatorInput = new ElevatorInput(System.in);
         while (true) {
-            PersonRequest request = elevatorInput.nextPersonRequest();
+            Request request = elevatorInput.nextRequest();
             if (request == null) {
                 building.setEnd(true);
                 break;
             } else {
-                building.addRequest(request);
+                if (request instanceof PersonRequest) {
+                    building.addRequest((PersonRequest) request);
+                } else if (request instanceof ElevatorRequest) {
+                    building.addElevator((ElevatorRequest) request);
+                } else if (request instanceof MaintainRequest) {
+                    building.maintain(((MaintainRequest) request).getElevatorId());
+                }
             }
         }
 
@@ -50,6 +59,7 @@ public class MainClass {
 
     public static void main(String[] argv) {
         TimableOutput.initStartTimestamp();
+
         if (argv.length == 0) {
             normal();
         } else if (argv[0].equals("generate")) {

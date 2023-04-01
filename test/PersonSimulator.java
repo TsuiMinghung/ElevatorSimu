@@ -1,6 +1,6 @@
 package test;
 
-import com.oocourse.elevator1.PersonRequest;
+import com.oocourse.elevator2.PersonRequest;
 
 import static test.PersonState.inElev;
 import static test.PersonState.outElev;

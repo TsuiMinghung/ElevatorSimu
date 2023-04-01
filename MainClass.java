@@ -1,15 +1,10 @@
-import com.oocourse.elevator2.ElevatorInput;
-import com.oocourse.elevator2.ElevatorRequest;
-import com.oocourse.elevator2.MaintainRequest;
-import com.oocourse.elevator2.PersonRequest;
-import com.oocourse.elevator2.Request;
-import com.oocourse.elevator2.TimableOutput;
+import com.oocourse.elevator1.ElevatorInput;
+import com.oocourse.elevator1.PersonRequest;
+import com.oocourse.elevator1.TimableOutput;
 import test.Generator;
 
 import java.io.IOException;
 import java.io.FileWriter;
-
-import static java.lang.Thread.sleep;
 
 public class MainClass {
 
@@ -17,11 +12,12 @@ public class MainClass {
         Building building = new Building();
         ElevatorInput elevatorInput = new ElevatorInput(System.in);
         while (true) {
-            Request request = elevatorInput.nextRequest();
+            PersonRequest request = elevatorInput.nextPersonRequest();
             if (request == null) {
                 building.setEnd(true);
                 break;
             } else {
+                /*
                 if (request instanceof PersonRequest) {
                     building.addRequest((PersonRequest) request);
                 } else if (request instanceof ElevatorRequest) {
@@ -29,6 +25,8 @@ public class MainClass {
                 } else if (request instanceof MaintainRequest) {
                     building.maintain(((MaintainRequest) request).getElevatorId());
                 }
+                */
+                building.addRequest(request);
             }
         }
 
@@ -59,19 +57,6 @@ public class MainClass {
         }
     }
 
-    public static void debug() {
-        Building building = new Building();
-        building.addElevator(new ElevatorRequest(8,9,8,0.2));
-        building.addRequest(new PersonRequest(10,8,1));
-        try {
-            sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        building.maintain(1);
-        building.setEnd(true);
-    }
-
     public static void main(String[] argv) {
         TimableOutput.initStartTimestamp();
 
@@ -79,8 +64,6 @@ public class MainClass {
             normal();
         } else if (argv[0].equals("generate")) {
             generate();
-        } else if (argv[0].equals("debug")) {
-            debug();
         }
     }
 }

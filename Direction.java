@@ -1,4 +1,4 @@
-import com.oocourse.elevator2.PersonRequest;
+import com.oocourse.elevator1.PersonRequest;
 
 public enum Direction {
     UP,DOWN;

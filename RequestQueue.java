@@ -1,4 +1,4 @@
-import com.oocourse.elevator2.PersonRequest;
+import com.oocourse.elevator1.PersonRequest;
 
 import java.util.ArrayList;
 import java.util.List;

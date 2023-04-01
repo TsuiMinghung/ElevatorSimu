@@ -1,5 +1,4 @@
 import com.oocourse.elevator2.PersonRequest;
-import com.oocourse.elevator2.TimableOutput;
 import com.oocourse.elevator2.ElevatorRequest;
 
 import java.util.ArrayList;
@@ -111,7 +110,7 @@ public class Elevator extends Thread {
             mainRequest = null;
             close();
         }
-        TimableOutput.println("MAINTAIN_ABLE-" + id);
+        MyOutput.println("MAINTAIN_ABLE-" + id);
         building.startAll();
     }
 
@@ -198,11 +197,11 @@ public class Elevator extends Thread {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        TimableOutput.println(String.format("ARRIVE-%d-%d",floor,id));
+        MyOutput.println(String.format("ARRIVE-%d-%d",floor,id));
     }
 
     private void open() {
-        TimableOutput.println(String.format("OPEN-%d-%d",floor,id));
+        MyOutput.println(String.format("OPEN-%d-%d",floor,id));
         try {
             sleep(OPENTIME);
         } catch (InterruptedException e) {
@@ -268,11 +267,11 @@ public class Elevator extends Thread {
     }
 
     private void inPerson(PersonRequest p) {
-        TimableOutput.println(String.format("IN-%d-%d-%d",p.getPersonId(),p.getFromFloor(),id));
+        MyOutput.println(String.format("IN-%d-%d-%d",p.getPersonId(),p.getFromFloor(),id));
     }
 
     private void outPerson(PersonRequest p) {
-        TimableOutput.println(String.format("OUT-%d-%d-%d",p.getPersonId(),floor,id));
+        MyOutput.println(String.format("OUT-%d-%d-%d",p.getPersonId(),floor,id));
     }
 
     private void close() {
@@ -281,7 +280,7 @@ public class Elevator extends Thread {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        TimableOutput.println(String.format("CLOSE-%d-%d",floor,id));
+        MyOutput.println(String.format("CLOSE-%d-%d",floor,id));
     }
 
     public synchronized void setEnd(boolean isEnd) {

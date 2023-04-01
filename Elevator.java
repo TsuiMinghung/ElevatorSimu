@@ -172,19 +172,6 @@ public class Elevator extends Thread {
             }
         } else {
             //current floor do not need to in out
-            if (room.isEmpty()) {
-                if (!building.needContinue(direction,floor)) {
-                    if (mainRequest == null) {
-                        direction = direction;
-                    } else if (direction.equals(Direction.UP) &&
-                            mainRequest.getFromFloor() < floor) {
-                        direction = direction.negate();
-                    } else if (direction.equals(Direction.DOWN) &&
-                            mainRequest.getFromFloor() > floor) {
-                        direction = direction.negate();
-                    }
-                }
-            }
             direction = (floor == MAXFLOOR ? Direction.DOWN :
                     floor == MINFLOOR ? Direction.UP : direction);
             return false;
@@ -255,7 +242,25 @@ public class Elevator extends Thread {
         for (PersonRequest p : toBeRemoved) {
             room.remove(p);
         }
-        updateDir();
+        if (room.isEmpty()) {
+            if (!building.needContinue(direction,floor)) {
+                if (mainRequest == null) {
+                    direction = direction;
+                } else if (mainRequest.getFromFloor() > floor) {
+                    direction = Direction.UP;
+                } else if (mainRequest.getFromFloor() < floor) {
+                    direction = Direction.DOWN;
+                } else {
+                    if (mainRequest.getFromFloor() > mainRequest.getToFloor()) {
+                        direction = Direction.DOWN;
+                    } else {
+                        direction = Direction.UP;
+                    }
+                }
+            }
+        } else {
+            mainRequest = room.get(0);
+        }
     }
 
     private void inPerson(PersonRequest p) {

@@ -152,7 +152,7 @@ public class Elevator extends Thread {
                 && direction.sameDirection(mainRequest) && room.size() < capacity) {
             return true;
         }
-        if (mainRequest != null && mainRequest.getFromFloor() == floor) {
+        if (mainRequest.getFromFloor() == floor) {
             if (capacity <= room.size()) {
                 building.addRequest(mainRequest);
                 mainRequest = room.get(0);
@@ -174,11 +174,17 @@ public class Elevator extends Thread {
                 }
             }
         } else {
-            //current floor do not need to in out
-            direction = (floor == MAXFLOOR ? Direction.DOWN :
-                    floor == MINFLOOR ? Direction.UP : direction);
-            return false;
+            if (room.isEmpty() && !building.needContinue(direction,floor)) {
+                if (mainRequest.getFromFloor() > floor) {
+                    direction = Direction.UP;
+                } else {
+                    direction = Direction.DOWN;
+                }
+            }
         }
+        direction = (floor == MAXFLOOR ? Direction.DOWN :
+                floor == MINFLOOR ? Direction.UP : direction);
+        return false;
     }
 
     private void move() {
@@ -261,8 +267,6 @@ public class Elevator extends Thread {
                     }
                 }
             }
-        } else {
-            mainRequest = room.get(0);
         }
     }
 

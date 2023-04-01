@@ -78,18 +78,33 @@ public class Elevator extends Thread {
     }
 
     private void pullOver() {
-        open();
-        boolean flag = !room.contains(mainRequest);
-        for (PersonRequest p : room) {
-            outPerson(p);
-            building.floorAt(floor).push(new PersonRequest(floor,p.getToFloor(),p.getPersonId()));
-        }
-        if (mainRequest != null && flag) {
-            building.floorAt(floor).push(new PersonRequest(mainRequest.getFromFloor(),
-                    mainRequest.getToFloor(),mainRequest.getPersonId()));
+        if (room.isEmpty()) {
+            if (mainRequest != null) {
+                building.addRequest(mainRequest);
+            }
+        } else {
+            open();
+            boolean flag = !room.contains(mainRequest);
+            for (PersonRequest p : room) {
+                outPerson(p);
+                if (p.getToFloor() != floor) {
+                    building.addRequest(new PersonRequest(floor,
+                            p.getToFloor(),p.getPersonId()));
+                }
+            }
+            if (flag) {
+                building.addRequest(new PersonRequest(mainRequest.getFromFloor(),
+                        mainRequest.getToFloor(),mainRequest.getPersonId()));
+            }
             mainRequest = null;
+            close();
         }
-        close();
+        TimableOutput.println("MAINTAIN_ABLE-" + id);
+        building.startAll();
+    }
+
+    public boolean needMaintain() {
+        return needMaintain;
     }
 
     public int getElevId() {
@@ -204,7 +219,7 @@ public class Elevator extends Thread {
     }
 
     private void outPerson(PersonRequest p) {
-        TimableOutput.println(String.format("OUT-%d-%d-%d",p.getPersonId(),p.getToFloor(),id));
+        TimableOutput.println(String.format("OUT-%d-%d-%d",p.getPersonId(),floor,id));
     }
 
     private void close() {
@@ -223,4 +238,5 @@ public class Elevator extends Thread {
     public synchronized void maintain() {
         this.needMaintain = true;
     }
+
 }

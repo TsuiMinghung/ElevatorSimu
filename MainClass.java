@@ -9,6 +9,8 @@ import test.Generator;
 import java.io.IOException;
 import java.io.FileWriter;
 
+import static java.lang.Thread.sleep;
+
 public class MainClass {
 
     public static void normal() {
@@ -57,6 +59,24 @@ public class MainClass {
         }
     }
 
+    public static void debug() {
+        Building building = new Building();
+        building.addElevator(new ElevatorRequest(8,9,5,0.2));
+        try {
+            sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        building.addRequest(new PersonRequest(3,2,1));
+        try {
+            sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        building.maintain(1);
+        building.setEnd(true);
+    }
+
     public static void main(String[] argv) {
         TimableOutput.initStartTimestamp();
 
@@ -64,6 +84,8 @@ public class MainClass {
             normal();
         } else if (argv[0].equals("generate")) {
             generate();
+        } else if (argv[0].equals("debug")) {
+            debug();
         }
     }
 }

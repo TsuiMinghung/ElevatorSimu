@@ -99,14 +99,28 @@ public class Building {
         return false;
     }
 
-    public void addElevator(ElevatorRequest elevatorRequest) {
+    public synchronized void addElevator(ElevatorRequest elevatorRequest) {
         Elevator elevator = new Elevator(elevatorRequest,this);
         elevator.start();
         elevators.put(elevator.getElevId(),elevator);
+        notifyAll();
     }
 
-    public void maintain(int id) {
+    public synchronized void maintain(int id) {
         elevators.get(id).maintain();
         notifyAll();
     }
+
+    public synchronized void startAll() {
+        for (Integer id : elevators.keySet()) {
+            Elevator e = elevators.get(id);
+            if (!e.isAlive() && !e.needMaintain()) {
+                Elevator elevator = new Elevator(this,id);
+                elevators.put(id,elevator);
+                elevator.start();
+            }
+        }
+        setEnd(isEnd);
+    }
+
 }

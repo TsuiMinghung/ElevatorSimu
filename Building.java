@@ -56,16 +56,16 @@ public class Building {
     }
 
     public synchronized PersonRequest getMainRequest(int floorNum,Direction direction) {
+        if (isEmpty()) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         PersonRequest result = getRequest(floorNum,direction);
         if (result == null) {
             result = getRequest(floorNum, direction.negate());
-            if (result == null) {
-                try {
-                    wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
         }
         return result;
     }

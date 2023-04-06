@@ -64,7 +64,7 @@ public class Generator {
         }
         List<String> result = new ArrayList<>();
         for (Map.Entry<Double,String> entry : tmp.entrySet()) {
-            result.add(String.format("[%f]",entry.getKey()) + entry.getValue());
+            result.add(String.format("[%.1f]",entry.getKey()) + entry.getValue());
         }
         return result;
     }
@@ -72,7 +72,7 @@ public class Generator {
     public List<String> edgeData1() {
         List<String> result = new ArrayList<>();
         for (int i = 0;i < DATA_NUM;++i) {
-            result.add(String.format("[%f]",END_TIME - 1) + randRequest());
+            result.add(String.format("[%.1f]",END_TIME) + randRequest());
         }
         return result;
     }
@@ -81,7 +81,7 @@ public class Generator {
         List<String> result = new ArrayList<>();
         result.addAll(generate(DATA_NUM / 2));
         while (result.size() < DATA_NUM) {
-            result.add(String.format("[%f]",END_TIME) + randRequest());
+            result.add(String.format("[%.1f]",END_TIME) + randRequest());
         }
         return result;
     }

@@ -290,8 +290,8 @@ public class Elevator extends Thread {
         for (PersonRequest p : ins) {
             inPerson(p);
         }
-        if (mainRequest == null) {
-            mainRequest = room.isEmpty() ? null : room.get(0);
+        if (mainRequest == null && !room.isEmpty()) {
+            mainRequest = room.get(0);
         }
     }
 
@@ -308,6 +308,9 @@ public class Elevator extends Thread {
         }
         for (PersonRequest p : toBeRemoved) {
             room.remove(p);
+        }
+        if (mainRequest == null && !room.isEmpty()) {
+            mainRequest = room.get(0);
         }
         if (room.isEmpty()) {
             if (!scheduler.needContinue(this)) {

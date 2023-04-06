@@ -95,8 +95,8 @@ public class Scheduler {
         Direction direction = elevator.getDirection();
         direction = reverse ? direction.negate() : direction;
         PersonRequest result = null;
-        for (int i = floorNum;direction == Direction.UP ? i <= MAXFLOOR : i >= MINFLOOR;
-             i = (direction == Direction.UP ? i + 1 : i - 1)) {
+        for (int i = floorNum;direction == Direction.UP ? i <= elevator.getMaxFloor() :
+                i >= elevator.getMinFloor(); i = (direction == Direction.UP ? i + 1 : i - 1)) {
             result = floors.get(i).tryPoll(elevator);
             if (result != null) {
                 break;

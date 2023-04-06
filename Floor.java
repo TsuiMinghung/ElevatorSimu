@@ -65,11 +65,11 @@ public class Floor {
             if (available <= result.size()) {
                 break;
             }
-            if (dir.equals(Direction.UP) && (elevator.carryTo(p) != 0)
+            if (dir.sameDirection(p) && (elevator.carryTo(p) != 0)
                     && elevator.reachable(p.getFromFloor())) {
                 toBeRemoved.add(p);
                 result.add(Scheduler.getInstance().split(p,elevator.carryTo(p)));
-            } else if (dir.equals(Direction.DOWN) && (elevator.carryTo(p) != 0)
+            } else if (dir.sameDirection(p) && (elevator.carryTo(p) != 0)
                     && elevator.reachable(p.getFromFloor())) {
                 toBeRemoved.add(p);
                 result.add(Scheduler.getInstance().split(p,elevator.carryTo(p)));

@@ -123,6 +123,7 @@ public class Elevator extends Thread {
         if (room.isEmpty()) {
             if (mainRequest != null) {
                 scheduler.addRequest(mainRequest);
+                mainRequest = null;
             }
         } else {
             serve();
@@ -380,6 +381,18 @@ public class Elevator extends Thread {
             }
         }
         return 0;
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("id is ").append(id);
+        sb.append(" isEnd is ").append(isEnd);
+        sb.append(" needMaintain is ").append(needMaintain);
+        sb.append(" room.size is ").append(room.size());
+        sb.append(" direction is ").append(direction);
+        sb.append(" mainRequest is ").append(mainRequest);
+        sb.append(" hasReachable is ").append(scheduler.hasReachable(this));
+        return sb.toString();
     }
 
 }

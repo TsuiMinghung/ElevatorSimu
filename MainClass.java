@@ -58,10 +58,9 @@ public class MainClass {
     }
 
     public static void debug() {
-        Scheduler scheduler = Scheduler.getInstance();
-        scheduler.addElevator(new ElevatorRequest(7,5,5,0.6,5));
-        scheduler.addRequest(new PersonRequest(3,1,1));
-        scheduler.setEnd(true);
+        System.err.println("turn on supervisor");
+        new Supervisor().start();
+        normal();
     }
 
     public static void main(String[] argv) {

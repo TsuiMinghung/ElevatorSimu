@@ -2,6 +2,7 @@
 import com.oocourse.elevator3.PersonRequest;
 import com.oocourse.elevator3.ElevatorRequest;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 public class Scheduler {
@@ -159,5 +160,9 @@ public class Scheduler {
             }
         }
         notifyAll();
+    }
+
+    public Collection<Elevator> getElevators() {
+        return elevators.values();
     }
 }

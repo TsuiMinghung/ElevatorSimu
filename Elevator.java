@@ -188,8 +188,8 @@ public class Elevator extends Thread {
     }
 
     private boolean updateDir() {
-        direction = (floor == maxFloor ? Direction.DOWN :
-                floor == minFloor ? Direction.UP : direction);
+        direction = (floor >= maxFloor ? Direction.DOWN :
+                floor <= minFloor ? Direction.UP : direction);
         if (!reachable(floor)) {
             return false;
         }
@@ -234,8 +234,8 @@ public class Elevator extends Thread {
                 }
             }
         }
-        direction = (floor == maxFloor ? Direction.DOWN :
-                floor == minFloor ? Direction.UP : direction);
+        direction = (floor >= maxFloor ? Direction.DOWN :
+                floor <= minFloor ? Direction.UP : direction);
         return false;
     }
 

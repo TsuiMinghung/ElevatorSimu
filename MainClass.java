@@ -59,8 +59,8 @@ public class MainClass {
 
     public static void debug() {
         Scheduler scheduler = Scheduler.getInstance();
-        scheduler.addElevator(new ElevatorRequest(7,5,5,0.6,178));
-        scheduler.addRequest(new PersonRequest(5,1,1));
+        scheduler.addElevator(new ElevatorRequest(7,5,5,0.6,5));
+        scheduler.addRequest(new PersonRequest(3,1,1));
         scheduler.setEnd(true);
     }
 

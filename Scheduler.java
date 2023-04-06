@@ -1,25 +1,37 @@
 
-import com.oocourse.elevator2.PersonRequest;
-import com.oocourse.elevator2.ElevatorRequest;
+import com.oocourse.elevator3.PersonRequest;
+import com.oocourse.elevator3.ElevatorRequest;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.ArrayList;
 import java.util.List;
 
-public class Building {
-    private final HashMap<Integer,RequestQueue> floors;
-    private final HashMap<Integer,Elevator> elevators;
+public class Scheduler {
+
     public static final int MAXFLOOR = 11;
     public static final int MINFLOOR = 1;
 
-    private boolean isEnd;
+    private static Scheduler INSTANCE = null;
 
-    public Building() {
+    public static Scheduler getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new Scheduler();
+        }
+        return INSTANCE;
+    }
+
+    private boolean isEnd;
+    private final HashMap<Integer, Floor> floors;
+    private final HashMap<Integer,Elevator> elevators;
+    private final HashMap<Integer,PersonRequest> originRequests;
+    private final HashMap<Integer,Integer> currentFloors;
+
+    private Scheduler() {
         this.isEnd = false;
         this.floors = new HashMap<>();
         for (int i = MINFLOOR; i <= MAXFLOOR; ++i) {
-            floors.put(i,new RequestQueue());
+            floors.put(i,new Floor());
         }
         this.elevators = new HashMap<>();
         for (int i = 1;i <= 6;++i) {
@@ -27,6 +39,8 @@ public class Building {
             elevators.put(i,elevator);
             elevator.start();
         }
+        this.originRequests = new HashMap<>();
+        this.currentFloors = new HashMap<>();
     }
 
     public synchronized void setEnd(boolean isEnd) {
@@ -41,40 +55,50 @@ public class Building {
         return isEnd;
     }
 
+    public PersonRequest split(PersonRequest p,int targetFloor) {
+        return new PersonRequest(currentFloors.get(p.getPersonId()),targetFloor,p.getPersonId());
+    }
+
+    public void finishRequest(PersonRequest p) {
+        currentFloors.put(p.getPersonId(),p.getToFloor());
+        PersonRequest origin = originRequests.get(p.getPersonId());
+        if (p.getToFloor() != origin.getToFloor()) {
+            addRequest(new PersonRequest(p.getToFloor(),origin.getToFloor(),p.getPersonId()));
+        }
+    }
+
     public synchronized void addRequest(PersonRequest request) {
+        if (!originRequests.containsKey(request.getPersonId())) {
+            originRequests.put(request.getPersonId(),request);
+            currentFloors.put(request.getPersonId(), request.getFromFloor());
+        }
         floors.get(request.getFromFloor()).push(request);
         notifyAll();
     }
 
-    public synchronized boolean isEmpty() {
-        for (RequestQueue requestQueue : floors.values()) {
-            if (!requestQueue.isEmpty()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public synchronized PersonRequest getMainRequest(int floorNum,Direction direction) {
-        if (isEmpty()) {
+    public synchronized PersonRequest getMainRequest(Elevator elevator) {
+        if (!hasReachable(elevator)) {
             try {
                 wait();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        PersonRequest result = getRequest(floorNum,direction);
+        PersonRequest result = getRequest(elevator,false);
         if (result == null) {
-            result = getRequest(floorNum, direction.negate());
+            result = getRequest(elevator,true);
         }
         return result;
     }
 
-    private PersonRequest getRequest(int floorNum,Direction direction) {
+    private PersonRequest getRequest(Elevator elevator,boolean reverse) {
+        int floorNum = elevator.getFloor();
+        Direction direction = elevator.getDirection();
+        direction = reverse ? direction.negate() : direction;
         PersonRequest result = null;
         for (int i = floorNum;direction == Direction.UP ? i <= MAXFLOOR : i >= MINFLOOR;
              i = (direction == Direction.UP ? i + 1 : i - 1)) {
-            result = floors.get(i).tryPoll();
+            result = floors.get(i).tryPoll(elevator);
             if (result != null) {
                 break;
             }
@@ -82,20 +106,22 @@ public class Building {
         return result;
     }
 
-    public RequestQueue floorAt(int floorNum) {
+    public Floor floorAt(int floorNum) {
         return floors.get(floorNum);
     }
 
-    public synchronized boolean needContinue(Direction dir,int floorNum) {
+    public synchronized boolean needContinue(Elevator elevator) {
+        Direction dir = elevator.getDirection();
+        int floorNum = elevator.getFloor();
         if (dir.equals(Direction.UP)) {
             for (int i = floorNum;i <= MAXFLOOR;++i) {
-                if (!floors.get(i).isEmpty()) {
+                if (!floors.get(i).hasReachable(elevator)) {
                     return true;
                 }
             }
         } else {
             for (int i = floorNum;i >= MINFLOOR;--i) {
-                if (!floors.get(i).isEmpty()) {
+                if (!floors.get(i).hasReachable(elevator)) {
                     return true;
                 }
             }
@@ -121,7 +147,7 @@ public class Building {
         for (Elevator e : tmp) {
             if (!e.isAlive() && !e.needMaintain()) {
                 Elevator elevator = new Elevator(this,new ElevatorRequest(e.getElevId(),
-                        e.getFloor(),e.getCapacity(),e.getSpeed()));
+                        e.getFloor(),e.getCapacity(),e.getSpeed(),e.getAccess()));
                 elevators.put(e.getElevId(),elevator);
                 elevator.start();
             }
@@ -135,4 +161,12 @@ public class Building {
         }
     }
 
+    public synchronized boolean hasReachable(Elevator elevator) {
+        for (Floor floor : floors.values()) {
+            if (floor.hasReachable(elevator)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -1,4 +1,4 @@
-import com.oocourse.elevator2.TimableOutput;
+import com.oocourse.elevator3.TimableOutput;
 
 public class MyOutput {
     public static void println(String s) {

@@ -1,9 +1,9 @@
-import com.oocourse.elevator2.ElevatorInput;
-import com.oocourse.elevator2.PersonRequest;
-import com.oocourse.elevator2.Request;
-import com.oocourse.elevator2.TimableOutput;
-import com.oocourse.elevator2.ElevatorRequest;
-import com.oocourse.elevator2.MaintainRequest;
+import com.oocourse.elevator3.ElevatorInput;
+import com.oocourse.elevator3.PersonRequest;
+import com.oocourse.elevator3.Request;
+import com.oocourse.elevator3.TimableOutput;
+import com.oocourse.elevator3.ElevatorRequest;
+import com.oocourse.elevator3.MaintainRequest;
 import test.Generator;
 
 import java.io.IOException;
@@ -12,20 +12,20 @@ import java.io.FileWriter;
 public class MainClass {
 
     public static void normal() {
-        Building building = new Building();
+        Scheduler scheduler = Scheduler.getInstance();
         ElevatorInput elevatorInput = new ElevatorInput(System.in);
         while (true) {
             Request request = elevatorInput.nextRequest();
             if (request == null) {
-                building.setEnd(true);
+                scheduler.setEnd(true);
                 break;
             } else {
                 if (request instanceof PersonRequest) {
-                    building.addRequest((PersonRequest) request);
+                    scheduler.addRequest((PersonRequest) request);
                 } else if (request instanceof ElevatorRequest) {
-                    building.addElevator((ElevatorRequest) request);
+                    scheduler.addElevator((ElevatorRequest) request);
                 } else if (request instanceof MaintainRequest) {
-                    building.maintain(((MaintainRequest) request).getElevatorId());
+                    scheduler.maintain(((MaintainRequest) request).getElevatorId());
                 }
             }
         }

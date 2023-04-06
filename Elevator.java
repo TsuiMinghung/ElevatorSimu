@@ -1,5 +1,5 @@
-import com.oocourse.elevator2.PersonRequest;
-import com.oocourse.elevator2.ElevatorRequest;
+import com.oocourse.elevator3.PersonRequest;
+import com.oocourse.elevator3.ElevatorRequest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,7 +8,7 @@ import java.util.List;
 public class Elevator extends Thread {
     private boolean isEnd;
     private boolean needMaintain;
-    private final Building building;
+    private final Scheduler scheduler;
     private PersonRequest mainRequest;
     private int floor;
     private final ArrayList<PersonRequest> room;
@@ -16,11 +16,12 @@ public class Elevator extends Thread {
     private final int id;
     private final double speed;
     private final int capacity;
+    private final int access;
 
     public static final int OPENTIME = 200;
     public static final int CLOSETIME = 200;
-    public static final int MAXFLOOR = 11;
-    public static final int MINFLOOR = 1;
+    private int maxFloor;
+    private int minFloor;
     public static final HashMap<Double,Integer> SPEEDTOLEVEL = new HashMap<Double,Integer>() {
         {
             put(0.2,10);
@@ -31,9 +32,9 @@ public class Elevator extends Thread {
         }
     };
 
-    public Elevator(Building building,int id) {
-        this.isEnd = building.isEnd();
-        this.building = building;
+    public Elevator(Scheduler scheduler, int id) {
+        this.isEnd = scheduler.isEnd();
+        this.scheduler = scheduler;
         this.floor = 1;
         this.direction = Direction.UP;
         this.mainRequest = null;
@@ -42,12 +43,15 @@ public class Elevator extends Thread {
         this.speed = 0.4;
         this.capacity = 6;
         this.needMaintain = false;
+        this.access = Integer.parseInt("11111111111",2);
+        this.minFloor = 1;
+        this.maxFloor = 11;
         setPriority(SPEEDTOLEVEL.get(speed));
     }
 
-    public Elevator(Building building,ElevatorRequest elevatorRequest) {
-        this.isEnd = building.isEnd();
-        this.building = building;
+    public Elevator(Scheduler scheduler, ElevatorRequest elevatorRequest) {
+        this.isEnd = scheduler.isEnd();
+        this.scheduler = scheduler;
         this.floor = elevatorRequest.getFloor();
         this.direction = Direction.UP;
         this.mainRequest = null;
@@ -56,6 +60,21 @@ public class Elevator extends Thread {
         this.speed = elevatorRequest.getSpeed();
         this.capacity = elevatorRequest.getCapacity();
         this.needMaintain = false;
+        this.access = elevatorRequest.getAccess();
+        this.minFloor = 1;
+        for (int i = 1;i <= 11;++i) {
+            if (reachable(i)) {
+                minFloor = i;
+                break;
+            }
+        }
+        this.maxFloor = 11;
+        for (int i = 11;i >= 1;--i) {
+            if (reachable(i)) {
+                maxFloor = i;
+                break;
+            }
+        }
         setPriority(SPEEDTOLEVEL.get(speed));
     }
 
@@ -66,12 +85,12 @@ public class Elevator extends Thread {
                 pullOver();
                 return;
             }
-            if (isEnd && mainRequest == null && room.isEmpty() && building.isEmpty()) {
+            if (isEnd && mainRequest == null && room.isEmpty() && !scheduler.hasReachable(this)) {
                 return;
             }
             if (mainRequest == null) {
                 //race one request
-                mainRequest = building.getMainRequest(floor,direction);
+                mainRequest = scheduler.getMainRequest(this);
             }
             if (mainRequest == null) {
                 //if not get one request ,retry
@@ -79,10 +98,21 @@ public class Elevator extends Thread {
             }
             //get main request ,should move
             if (updateDir()) {
+                boolean onlyPick = (outCount() == 0);
+                if (onlyPick) {
+                    onlyPick();
+                } else {
+                    serve();
+                }
                 open();
                 out();
                 in();
                 close();
+                if (onlyPick) {
+                    finishPick();
+                } else {
+                    finishServe();
+                }
             }
             move();
         }
@@ -91,27 +121,44 @@ public class Elevator extends Thread {
     private void pullOver() {
         if (room.isEmpty()) {
             if (mainRequest != null) {
-                building.addRequest(mainRequest);
+                scheduler.addRequest(mainRequest);
             }
         } else {
+            serve();
             open();
             boolean flag = !room.contains(mainRequest);
             for (PersonRequest p : room) {
                 outPerson(p);
                 if (p.getToFloor() != floor) {
-                    building.addRequest(new PersonRequest(floor,
+                    scheduler.addRequest(new PersonRequest(floor,
                             p.getToFloor(),p.getPersonId()));
                 }
             }
             if (flag) {
-                building.addRequest(new PersonRequest(mainRequest.getFromFloor(),
-                        mainRequest.getToFloor(),mainRequest.getPersonId()));
+                scheduler.addRequest(mainRequest);
             }
             mainRequest = null;
             close();
+            finishServe();
         }
         MyOutput.println("MAINTAIN_ABLE-" + id);
-        building.startAll();
+        scheduler.startAll();
+    }
+
+    private void serve() {
+        scheduler.floorAt(floor).serve();
+    }
+
+    private void finishServe() {
+        scheduler.floorAt(floor).finishServe();
+    }
+
+    private void onlyPick() {
+        scheduler.floorAt(floor).onlyPick();
+    }
+
+    private void finishPick() {
+        scheduler.floorAt(floor).finishPick();
     }
 
     public int getFloor() {
@@ -134,27 +181,42 @@ public class Elevator extends Thread {
         return id;
     }
 
+    public Direction getDirection() {
+        return direction;
+    }
+
+    public int getAccess() {
+        return access;
+    }
+
+    public int getAvailable() {
+        return capacity - room.size();
+    }
+
     private boolean updateDir() {
-        direction = (floor == MAXFLOOR ? Direction.DOWN :
-                floor == MINFLOOR ? Direction.UP : direction);
+        direction = (floor == maxFloor ? Direction.DOWN :
+                floor == minFloor ? Direction.UP : direction);
+        if (!reachable(floor)) {
+            return false;
+        }
         for (PersonRequest p : room) {
             if (p.getToFloor() == floor) {
                 return true;
             }
         }
-        if (building.floorAt(floor).sameDirection(direction) && room.size() < capacity) {
+        if (scheduler.floorAt(floor).hasSuitable(this) && room.size() < capacity) {
             return true;
         } else if (mainRequest != null && mainRequest.getFromFloor() == floor
                 && direction.sameDirection(mainRequest) && room.size() < capacity) {
             return true;
         }
-        if (mainRequest.getFromFloor() == floor) {
+        if (mainRequest != null && mainRequest.getFromFloor() == floor) {
             if (capacity <= room.size()) {
-                building.addRequest(mainRequest);
+                scheduler.addRequest(mainRequest);
                 mainRequest = room.get(0);
                 return false;
             } else {
-                if (building.needContinue(direction,floor)) {
+                if (scheduler.needContinue(this)) {
                     return direction.sameDirection(mainRequest);
                 } else {
                     if (direction.sameDirection(mainRequest)) {
@@ -170,7 +232,7 @@ public class Elevator extends Thread {
                 }
             }
         } else {
-            if (room.isEmpty() && !building.needContinue(direction,floor)) {
+            if (room.isEmpty() && !scheduler.needContinue(this)) {
                 if (mainRequest.getFromFloor() > floor) {
                     direction = Direction.UP;
                 } else {
@@ -178,9 +240,19 @@ public class Elevator extends Thread {
                 }
             }
         }
-        direction = (floor == MAXFLOOR ? Direction.DOWN :
-                floor == MINFLOOR ? Direction.UP : direction);
+        direction = (floor == maxFloor ? Direction.DOWN :
+                floor == minFloor ? Direction.UP : direction);
         return false;
+    }
+
+    private int outCount() {
+        int result = 0;
+        for (PersonRequest p : room) {
+            if (p.getToFloor() == floor) {
+                result += 1;
+            }
+        }
+        return result;
     }
 
     private void move() {
@@ -213,7 +285,7 @@ public class Elevator extends Thread {
         if (mainRequest != null &&  mainRequest.getFromFloor() == floor &&
                 direction.sameDirection(mainRequest)) {
             if (capacity == room.size()) {
-                building.addRequest(mainRequest);
+                scheduler.addRequest(mainRequest);
                 mainRequest = room.get(0);
                 return;
             } else {
@@ -222,8 +294,8 @@ public class Elevator extends Thread {
             }
         }
 
-        List<PersonRequest> ins = building.floorAt(floor).
-                willingPersons(capacity - room.size(),direction);
+        List<PersonRequest> ins = scheduler.floorAt(floor).
+                willingPersons(this);
         room.addAll(ins);
         for (PersonRequest p : ins) {
             inPerson(p);
@@ -248,7 +320,7 @@ public class Elevator extends Thread {
             room.remove(p);
         }
         if (room.isEmpty()) {
-            if (!building.needContinue(direction,floor)) {
+            if (!scheduler.needContinue(this)) {
                 if (mainRequest == null) {
                     direction = direction;
                 } else if (mainRequest.getFromFloor() > floor) {
@@ -271,6 +343,7 @@ public class Elevator extends Thread {
     }
 
     private void outPerson(PersonRequest p) {
+        scheduler.finishRequest(p);
         MyOutput.println(String.format("OUT-%d-%d-%d",p.getPersonId(),floor,id));
     }
 
@@ -289,6 +362,31 @@ public class Elevator extends Thread {
 
     public synchronized void maintain() {
         this.needMaintain = true;
+    }
+
+    public boolean reachable(int floorNum) {
+        return ((1 << (floorNum - 1)) & access) != 0;
+    }
+
+    public int carryTo(PersonRequest request) {
+        if (!reachable(request.getFromFloor())) {
+            return 0;
+        }
+        int span = Math.abs(request.getFromFloor() - request.getToFloor());
+        for (int i = 0;i < span;++i) {
+            if (reachable(request.getToFloor() + i) && reachable(request.getToFloor() - i)) {
+                if (request.getToFloor() > request.getFromFloor()) {
+                    return request.getToFloor() - i;
+                } else {
+                    return request.getToFloor() + i;
+                }
+            } else if (reachable(request.getToFloor() + i)) {
+                return request.getToFloor() + i;
+            } else if (reachable(request.getToFloor() - i)) {
+                return request.getToFloor() - i;
+            }
+        }
+        return 0;
     }
 
 }

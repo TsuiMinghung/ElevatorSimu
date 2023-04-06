@@ -2,10 +2,7 @@
 import com.oocourse.elevator3.PersonRequest;
 import com.oocourse.elevator3.ElevatorRequest;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 
 public class Scheduler {
 
@@ -26,6 +23,7 @@ public class Scheduler {
     private final HashMap<Integer,Elevator> elevators;
     private final HashMap<Integer,PersonRequest> originRequests;
     private final HashMap<Integer,Integer> currentFloors;
+    private int finishCount;
 
     private Scheduler() {
         this.isEnd = false;
@@ -41,6 +39,7 @@ public class Scheduler {
         }
         this.originRequests = new HashMap<>();
         this.currentFloors = new HashMap<>();
+        this.finishCount = 0;
     }
 
     public synchronized void setEnd(boolean isEnd) {
@@ -114,14 +113,14 @@ public class Scheduler {
         Direction dir = elevator.getDirection();
         int floorNum = elevator.getFloor();
         if (dir.equals(Direction.UP)) {
-            for (int i = floorNum;i <= MAXFLOOR;++i) {
-                if (!floors.get(i).hasReachable(elevator)) {
+            for (int i = floorNum;i <= elevator.getMaxFloor();++i) {
+                if (floors.get(i).hasReachable(elevator)) {
                     return true;
                 }
             }
         } else {
-            for (int i = floorNum;i >= MINFLOOR;--i) {
-                if (!floors.get(i).hasReachable(elevator)) {
+            for (int i = floorNum;i >= elevator.getMinFloor();--i) {
+                if (floors.get(i).hasReachable(elevator)) {
                     return true;
                 }
             }
@@ -141,26 +140,6 @@ public class Scheduler {
         notifyAll();
     }
 
-    public synchronized void startAll() {
-        List<Elevator> tmp = new ArrayList<>(elevators.values());
-        tmp.sort(new SortBySpeed());
-        for (Elevator e : tmp) {
-            if (!e.isAlive() && !e.needMaintain()) {
-                Elevator elevator = new Elevator(this,new ElevatorRequest(e.getElevId(),
-                        e.getFloor(),e.getCapacity(),e.getSpeed(),e.getAccess()));
-                elevators.put(e.getElevId(),elevator);
-                elevator.start();
-            }
-        }
-        notifyAll();
-    }
-
-    private static class SortBySpeed implements Comparator<Elevator> {
-        public int compare(Elevator e1,Elevator e2) {
-            return Double.compare(e1.getSpeed(),e2.getSpeed());
-        }
-    }
-
     public synchronized boolean hasReachable(Elevator elevator) {
         for (Floor floor : floors.values()) {
             if (floor.hasReachable(elevator)) {
@@ -168,5 +147,17 @@ public class Scheduler {
             }
         }
         return false;
+    }
+
+    public synchronized void finishTask() {
+        finishCount += 1;
+        while (finishCount < elevators.size()) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        notifyAll();
     }
 }

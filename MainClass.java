@@ -57,11 +57,19 @@ public class MainClass {
         }
     }
 
+    public static void debug() {
+        Scheduler scheduler = Scheduler.getInstance();
+        scheduler.addElevator(new ElevatorRequest(7,5,5,0.6,178));
+        scheduler.addRequest(new PersonRequest(5,1,1));
+        scheduler.setEnd(true);
+    }
+
     public static void main(String[] argv) {
         TimableOutput.initStartTimestamp();
 
         if (argv.length == 0) {
             normal();
+            //debug();
         } else if (argv[0].equals("generate")) {
             generate();
         }

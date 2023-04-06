@@ -86,6 +86,7 @@ public class Elevator extends Thread {
                 return;
             }
             if (isEnd && mainRequest == null && room.isEmpty() && !scheduler.hasReachable(this)) {
+                scheduler.finishTask();
                 return;
             }
             if (mainRequest == null) {
@@ -142,7 +143,8 @@ public class Elevator extends Thread {
             finishServe();
         }
         MyOutput.println("MAINTAIN_ABLE-" + id);
-        scheduler.startAll();
+        scheduler.finishTask();
+        //scheduler.startAll();
     }
 
     private void serve() {
@@ -161,20 +163,16 @@ public class Elevator extends Thread {
         scheduler.floorAt(floor).finishPick();
     }
 
+    public int getMaxFloor() {
+        return maxFloor;
+    }
+
+    public int getMinFloor() {
+        return minFloor;
+    }
+
     public int getFloor() {
         return floor;
-    }
-
-    public double getSpeed() {
-        return speed;
-    }
-
-    public int getCapacity() {
-        return capacity;
-    }
-
-    public boolean needMaintain() {
-        return needMaintain;
     }
 
     public int getElevId() {
@@ -183,10 +181,6 @@ public class Elevator extends Thread {
 
     public Direction getDirection() {
         return direction;
-    }
-
-    public int getAccess() {
-        return access;
     }
 
     public int getAvailable() {

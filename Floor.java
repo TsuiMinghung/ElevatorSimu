@@ -60,17 +60,20 @@ public class Floor {
         int available = elevator.getAvailable();
         Direction dir = elevator.getDirection();
         ArrayList<PersonRequest> result = new ArrayList<>();
+        ArrayList<PersonRequest> toBeRemoved = new ArrayList<>();
         for (PersonRequest p : requests) {
             if (available <= result.size()) {
                 break;
             }
             if (dir.equals(Direction.UP) && (elevator.carryTo(p) != 0)) {
+                toBeRemoved.add(p);
                 result.add(Scheduler.getInstance().split(p,elevator.carryTo(p)));
             } else if (dir.equals(Direction.DOWN) && (elevator.carryTo(p) != 0)) {
+                toBeRemoved.add(p);
                 result.add(Scheduler.getInstance().split(p,elevator.carryTo(p)));
             }
         }
-        for (PersonRequest p : result) {
+        for (PersonRequest p : toBeRemoved) {
             requests.remove(p);
         }
         notifyAll();

@@ -129,11 +129,7 @@ public class Elevator extends Thread {
             open();
             boolean flag = !room.contains(mainRequest);
             for (PersonRequest p : room) {
-                outPerson(p);
-                if (p.getToFloor() != floor) {
-                    scheduler.addRequest(new PersonRequest(floor,
-                            p.getToFloor(),p.getPersonId()));
-                }
+                outPerson(new PersonRequest(p.getFromFloor(),floor,p.getPersonId()));
             }
             if (flag) {
                 scheduler.addRequest(mainRequest);
@@ -333,12 +329,12 @@ public class Elevator extends Thread {
     }
 
     private void inPerson(PersonRequest p) {
-        MyOutput.println(String.format("IN-%d-%d-%d",p.getPersonId(),p.getFromFloor(),id));
+        MyOutput.println(String.format("IN-%d-%d-%d",p.getPersonId(),floor,id));
     }
 
     private void outPerson(PersonRequest p) {
-        scheduler.finishRequest(p);
         MyOutput.println(String.format("OUT-%d-%d-%d",p.getPersonId(),floor,id));
+        scheduler.finishRequest(p);
     }
 
     private void close() {

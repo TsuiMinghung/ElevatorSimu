@@ -87,7 +87,12 @@ public class Elevator extends Thread {
             }
             if (isEnd && mainRequest == null && room.isEmpty() && !scheduler.hasReachable(this)) {
                 scheduler.finishTask();
-                return;
+                if (scheduler.isEmpty()) {
+                    return;
+                } else {
+                    scheduler.restart();
+                    continue;
+                }
             }
             if (mainRequest == null) {
                 //race one request

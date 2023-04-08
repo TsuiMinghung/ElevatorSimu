@@ -162,7 +162,21 @@ public class Scheduler {
         notifyAll();
     }
 
+    public synchronized void restart() {
+        finishCount -= 1;
+        notifyAll();
+    }
+
     public Collection<Elevator> getElevators() {
         return elevators.values();
+    }
+
+    public synchronized boolean isEmpty() {
+        for (Floor floor : floors.values()) {
+            if (!floor.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 }

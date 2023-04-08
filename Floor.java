@@ -118,6 +118,10 @@ public class Floor {
         notifyAll();
     }
 
+    public synchronized boolean isEmpty() {
+        return requests.isEmpty();
+    }
+
 }
 
 

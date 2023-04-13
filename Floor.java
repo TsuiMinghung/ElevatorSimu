@@ -83,7 +83,7 @@ public class Floor {
     }
 
     public synchronized void serve() {
-        while (serving > MX) {
+        while (serving >= MX) {
             try {
                 wait();
             } catch (InterruptedException e) {

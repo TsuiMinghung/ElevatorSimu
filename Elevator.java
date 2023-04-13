@@ -372,7 +372,7 @@ public class Elevator extends Thread {
             return 0;
         }
         int span = Math.abs(request.getFromFloor() - request.getToFloor());
-        for (int i = 0;i < span;++i) {
+        for (int i = 0;i < span - 1;++i) {
             if (reachable(request.getToFloor() + i) && reachable(request.getToFloor() - i)) {
                 if (request.getToFloor() > request.getFromFloor()) {
                     return request.getToFloor() - i;
